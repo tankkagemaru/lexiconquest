@@ -473,8 +473,9 @@ function LexiconQuest() {
   };
 
   useEffect(() => {
+    if (screen !== 'battle') return;
     if (timerActive && timeLeft <= 5 && timeLeft > 0 && !feedback) sfx()?.playTick();
-  }, [timeLeft, timerActive, feedback]);
+  }, [timeLeft, timerActive, feedback, screen]);
 
   const startBattle = (isBoss = false) => startBattleWithLevel(cefrLevel, isBoss);
 
@@ -500,13 +501,15 @@ function LexiconQuest() {
   };
 
   useEffect(() => {
+    // Timer only ticks while we are ACTUALLY in a battle
+    if (screen !== 'battle') return;
     if (timerActive && timeLeft > 0 && !feedback) {
       timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000);
     } else if (timeLeft === 0 && !feedback) {
       handleAnswer(-1);
     }
     return () => clearTimeout(timerRef.current);
-  }, [timeLeft, timerActive, feedback]);
+  }, [timeLeft, timerActive, feedback, screen]);
 
   const handleAnswer = (optionIdx) => {
     if (feedback) return;
@@ -633,6 +636,11 @@ function LexiconQuest() {
   };
 
   const resetGame = () => {
+    // Stop the timer and music cleanly
+    clearTimeout(timerRef.current);
+    setTimerActive(false);
+    setTimeLeft(15);
+    setFeedback(null);
     sfx()?.stopMusic();
     sfx()?.playClick();
     setScreen('menu');
